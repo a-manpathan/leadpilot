@@ -1,0 +1,37 @@
+# LeadPilot - Git Ignore Rules
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+ENV/
+
+# Local databases
+data/*.db
+data/*.sqlite*
+*.db
+*.sqlite3
+
+# Environment variables & secrets
+.env
+.env.local
+.streamlit/secrets.toml
+
+# IDE & OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Test & coverage
+.pytest_cache/
+tests/_tmp/
+.coverage
+htmlcov/
+
+# Logs
+*.log
+logs/
