@@ -25,6 +25,20 @@ def _read_secret(key: str) -> str:
     return ""
 
 
+def normalize_database_url(raw_url: str) -> str:
+    """Make a Postgres URL usable with the installed psycopg2 driver.
+
+    Render and Supabase hand out postgres:// or postgresql:// URLs. SQLAlchemy
+    2.1 treats a bare postgresql:// URL as the psycopg 3 driver. This app
+    installs psycopg2-binary, so the dialect has to be named explicitly.
+    """
+    if raw_url.startswith("postgres://"):
+        raw_url = "postgresql://" + raw_url[len("postgres://"):]
+    if raw_url.startswith("postgresql://"):
+        raw_url = "postgresql+psycopg2://" + raw_url[len("postgresql://"):]
+    return raw_url
+
+
 # Database URL configuration
 def get_database_url() -> str:
     raw_url = _read_secret("DATABASE_URL")
@@ -34,11 +48,8 @@ def get_database_url() -> str:
         db_path = data_dir / "leadpilot.db"
         # Convert to standard SQLite URI with forward slashes
         return f"sqlite:///{db_path.as_posix()}"
-    
-    # SQLAlchemy 2.x compatibility: replace postgres:// with postgresql://
-    if raw_url.startswith("postgres://"):
-        raw_url = "postgresql://" + raw_url[len("postgres://"):]
-    return raw_url
+
+    return normalize_database_url(raw_url)
 
 DATABASE_URL = get_database_url()
 IS_SQLITE = DATABASE_URL.startswith("sqlite")

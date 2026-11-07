@@ -9,7 +9,7 @@ from pathlib import Path
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 from database.models import Base, Business, LeadResearch, LeadQualification, EmailDraft, ActivityLog, CompanySettings
-from config.settings import PROJECT_ROOT
+from config.settings import PROJECT_ROOT, normalize_database_url
 
 logger = logging.getLogger("leadpilot.migrations")
 
@@ -34,7 +34,7 @@ def export_database_to_json(source_db_url: str, output_path: str = None) -> str:
         timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
         output_path = str(backup_dir / f"leadpilot_backup_{timestamp}.json")
 
-    engine = create_engine(source_db_url)
+    engine = create_engine(normalize_database_url(source_db_url))
     SessionLocal = sessionmaker(bind=engine)
     session = SessionLocal()
 
@@ -64,11 +64,7 @@ def import_database_from_json(target_db_url: str, backup_file_path: str) -> bool
     with open(backup_file_path, "r", encoding="utf-8") as f:
         data = json.load(f)
 
-    # Ensure PostgreSQL URL compatibility
-    if target_db_url.startswith("postgres://"):
-        target_db_url = "postgresql://" + target_db_url[len("postgres://"):]
-
-    engine = create_engine(target_db_url)
+    engine = create_engine(normalize_database_url(target_db_url))
     Base.metadata.create_all(bind=engine)
     SessionLocal = sessionmaker(bind=engine)
     session = SessionLocal()

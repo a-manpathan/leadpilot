@@ -345,7 +345,7 @@ def test_database_schema_crud_duplicates_and_restart(tmp_path, monkeypatch):
     assert get_database_url().startswith("sqlite:///")
     monkeypatch.setenv("DATABASE_URL", "postgres://user:secret@db.example:5432/postgres")
     rewritten = get_database_url()
-    assert rewritten.startswith("postgresql://")
+    assert rewritten.startswith("postgresql+psycopg2://")
     monkeypatch.setenv("DATABASE_URL", original_url)
 
     business_id = _add_business()
